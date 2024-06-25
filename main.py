@@ -1,13 +1,13 @@
-import os
-import traceback
+from dotenv import dotenv_values
 
 import discord
 from discord.ext import commands
-from dotenv import load_dotenv
 
-load_dotenv("config.env")
+from assets.cogsloader import cogsLoader
 
-TOKEN_BOT = os.getenv("TOKEN_BOT")
+config =  dotenv_values(".env")
+
+TOKEN = config["TOKEN"]
 
 
 class MyBot(commands.Bot):
@@ -21,22 +21,9 @@ class MyBot(commands.Bot):
             help_command=None,
         )
         self.synced = False
-        self.run(TOKEN_BOT)
+        self.run(TOKEN)
 
     async def setup_hook(self):
-        diretorio = os.listdir("./cogs")
-        print("Cogs/")
-        for f in diretorio:
-            if f.endswith(".py"):
-                try:
-                    await self.load_extension("cogs." + f[:-3])
-                    if diretorio.index(f) < len(diretorio) - 1:
-                        print(f"├── {f}")
-                    else:
-                        print(f"└── {f}")
-                except Exception:
-                    print(f"Falha ao carregar: {f}")
-                    traceback.print_exc()
-
+        await cogsLoader(self)
 
 MyBot()
